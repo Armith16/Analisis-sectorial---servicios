@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análisis Sectorial — Sector Servicios y Comercio en Colombia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy: #1B2A4A;
+  --navy-light: #2D4373;
+  --gold: #C9A84C;
+  --gold-light: #E8D5A0;
+  --cream: #FAF7F0;
+  --white: #FFFFFF;
+  --gray-100: #F5F3EE;
+  --gray-200: #E8E4DB;
+  --gray-400: #A09B90;
+  --gray-600: #6B6560;
+  --red: #C0392B;
+  --green: #27864A;
+  --blue-chart: #2D4373;
+  --green-chart: #27864A;
+  --orange-chart: #D4780A;
+  --purple-chart: #6C3483;
+  --teal-chart: #148F77;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body { font-family:'Source Sans 3', sans-serif; background:var(--cream); color:var(--navy); line-height:1.7; }
+
+/* ── HEADER ── */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: var(--white);
+  padding: 60px 0 50px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(255,255,255,.02) 40px, rgba(255,255,255,.02) 80px);
+}
+.hero h1 { font-family:'DM Serif Display', serif; font-size:2.6rem; margin-bottom:8px; position:relative; }
+.hero .subtitle { font-size:1.1rem; font-weight:300; opacity:.85; position:relative; }
+.hero .meta { font-size:.85rem; opacity:.6; margin-top:16px; position:relative; }
+.gold-line { width:80px; height:3px; background:var(--gold); margin:16px auto; border-radius:2px; }
+
+/* ── NAV ── */
+.nav-bar {
+  background: var(--white);
+  border-bottom: 2px solid var(--gray-200);
+  padding: 0 20px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.nav-bar ul { list-style:none; display:flex; justify-content:center; gap:0; max-width:1100px; margin:0 auto; flex-wrap:wrap; }
+.nav-bar li a {
+  display:block; padding:14px 22px; text-decoration:none; color:var(--gray-600);
+  font-size:.88rem; font-weight:600; letter-spacing:.3px; transition:all .2s;
+  border-bottom:3px solid transparent;
+}
+.nav-bar li a:hover { color:var(--navy); border-bottom-color:var(--gold); }
+
+/* ── LAYOUT ── */
+.container { max-width:1100px; margin:0 auto; padding:0 24px; }
+section { padding: 50px 0; }
+section:nth-child(even) { background: var(--gray-100); }
+
+/* ── SECTION HEADERS ── */
+.section-number {
+  font-family:'DM Serif Display', serif; font-size:3.5rem; color:var(--gold);
+  opacity:.35; line-height:1; margin-bottom:-10px;
+}
+.section-title {
+  font-family:'DM Serif Display', serif; font-size:1.7rem; color:var(--navy);
+  margin-bottom:6px;
+}
+.section-source { font-size:.82rem; color:var(--gray-400); margin-bottom:28px; font-style:italic; }
+
+/* ── CARDS ── */
+.card {
+  background:var(--white); border-radius:12px; padding:28px;
+  box-shadow:0 2px 16px rgba(27,42,74,.06); margin-bottom:24px;
+}
+.card h3 { font-family:'DM Serif Display', serif; font-size:1.15rem; color:var(--navy); margin-bottom:14px; }
+.card p { font-size:.95rem; color:var(--gray-600); margin-bottom:12px; }
+.card p strong { color:var(--navy); }
+
+/* ── KPI ROW ── */
+.kpi-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-bottom:28px; }
+.kpi {
+  background:var(--white); border-radius:10px; padding:20px; text-align:center;
+  box-shadow:0 2px 10px rgba(27,42,74,.05); border-left:4px solid var(--gold);
+}
+.kpi .value { font-family:'DM Serif Display', serif; font-size:2rem; color:var(--navy); }
+.kpi .label { font-size:.78rem; color:var(--gray-400); margin-top:4px; line-height:1.3; }
+.kpi.green { border-left-color:var(--green); }
+.kpi.green .value { color:var(--green); }
+.kpi.red { border-left-color:var(--red); }
+.kpi.red .value { color:var(--red); }
+
+/* ── CHARTS ── */
+.chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px; }
+.chart-card { background:var(--white); border-radius:12px; padding:24px; box-shadow:0 2px 16px rgba(27,42,74,.06); }
+.chart-card.full { grid-column:1/-1; }
+.chart-card h4 { font-size:.92rem; font-weight:700; color:var(--navy); margin-bottom:12px; letter-spacing:.2px; }
+.chart-card .chart-source { font-size:.72rem; color:var(--gray-400); text-align:right; margin-top:8px; }
+canvas { max-height:340px; }
+
+/* ── TABLES ── */
+.data-table { width:100%; border-collapse:collapse; font-size:.88rem; margin-bottom:16px; }
+.data-table thead th {
+  background:var(--navy); color:var(--white); padding:10px 12px; text-align:center;
+  font-weight:600; font-size:.82rem; letter-spacing:.3px;
+}
+.data-table thead th:first-child { text-align:left; border-radius:8px 0 0 0; }
+.data-table thead th:last-child { border-radius:0 8px 0 0; }
+.data-table tbody td { padding:8px 12px; border-bottom:1px solid var(--gray-200); text-align:center; }
+.data-table tbody td:first-child { text-align:left; font-weight:600; color:var(--navy); }
+.data-table tbody tr:hover { background:rgba(201,168,76,.08); }
+.data-table .highlight { background:rgba(201,168,76,.12); font-weight:700; }
+.data-table .pos { color:var(--green); font-weight:600; }
+.data-table .neg { color:var(--red); font-weight:600; }
+
+/* ── ANALYSIS BOX ── */
+.analysis-box {
+  background:linear-gradient(135deg, rgba(201,168,76,.08), rgba(201,168,76,.03));
+  border-left:4px solid var(--gold); border-radius:0 10px 10px 0;
+  padding:20px 24px; margin:20px 0;
+}
+.analysis-box h4 { font-family:'DM Serif Display', serif; font-size:1rem; color:var(--navy); margin-bottom:8px; }
+.analysis-box p { font-size:.9rem; color:var(--gray-600); }
+
+/* ── BIBLIOGRAPHY ── */
+.bib-section { background:var(--navy); color:var(--white); padding:40px 0; }
+.bib-section h2 { font-family:'DM Serif Display', serif; font-size:1.5rem; margin-bottom:20px; }
+.bib-entry { font-size:.85rem; margin-bottom:10px; line-height:1.6; opacity:.85; padding-left:2em; text-indent:-2em; }
+
+/* ── FOOTER ── */
+footer { background:var(--navy); color:rgba(255,255,255,.5); text-align:center; padding:20px; font-size:.78rem; border-top:2px solid var(--gold); }
+
+@media (max-width:768px) {
+  .hero h1 { font-size:1.8rem; }
+  .chart-grid { grid-template-columns:1fr; }
+  .nav-bar li a { padding:10px 14px; font-size:.8rem; }
+  .kpi-row { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════ HERO ════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="container">
+    <h1>Análisis Sectorial de la Economía Colombiana</h1>
+    <div class="gold-line"></div>
+    <p class="subtitle">Sector Servicios y Comercio — Variables Macroeconómicas y Microeconómicas (2020–2025)</p>
+    <p class="meta">Microeconomía · Universidad Autónoma de Bucaramanga (UNAB) · Abril 2026</p>
+  </div>
+</header>
+
+<nav class="nav-bar">
+  <ul>
+    <li><a href="#s1">1. PIB y Participación</a></li>
+    <li><a href="#s2">2. Empleo y Desempleo</a></li>
+    <li><a href="#s3">3. Precios (IPC)</a></li>
+    <li><a href="#s4">4. Ventas y Salarios</a></li>
+    <li><a href="#bib">Bibliografía</a></li>
+  </ul>
+</nav>
+
+<!-- ════════════════════════════════════════════ SECCIÓN 1 ════════════════════════════════════════════ -->
+<section id="s1">
+<div class="container">
+  <div class="section-number">01</div>
+  <h2 class="section-title">PIB y participación del sector servicios en la economía</h2>
+  <p class="section-source">Fuente: DANE, Cuentas Nacionales Trimestrales — PIB IV trimestre 2025 preliminar. Series encadenadas de volumen, año de referencia 2015.</p>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="value">62,3%</div><div class="label">Participación del sector servicios en el PIB (2025)</div></div>
+    <div class="kpi green"><div class="value">+4,6%</div><div class="label">Crecimiento Comercio, Transporte y Alojamiento (2025)</div></div>
+    <div class="kpi"><div class="value">+2,6%</div><div class="label">Crecimiento del PIB total (2025)</div></div>
+    <div class="kpi green"><div class="value">+9,9%</div><div class="label">Crecimiento Act. artísticas y entretenimiento (2025)</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Valor agregado por rama de actividad económica (miles de millones de pesos, base 2015)</h3>
+    <div style="overflow-x:auto">
+    <table class="data-table">
+      <thead><tr><th>Rama de actividad</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th><th>2025<sup>pr</sup></th></tr></thead>
+      <tbody>
+        <tr><td>Agricultura, ganadería, caza, silvicultura y pesca</td><td>55.539</td><td>57.968</td><td>57.442</td><td>58.389</td><td>61.967</td><td>63.888</td></tr>
+        <tr><td>Explotación de minas y canteras</td><td>37.056</td><td>36.980</td><td>37.518</td><td>38.481</td><td>37.168</td><td>34.868</td></tr>
+        <tr><td>Industrias manufactureras</td><td>94.254</td><td>107.066</td><td>115.802</td><td>113.925</td><td>111.003</td><td>113.057</td></tr>
+        <tr><td>Suministro de electricidad, gas y agua</td><td>25.587</td><td>27.079</td><td>28.327</td><td>29.221</td><td>29.948</td><td>30.290</td></tr>
+        <tr><td>Construcción</td><td>39.359</td><td>41.039</td><td>43.765</td><td>42.412</td><td>42.448</td><td>41.273</td></tr>
+        <tr class="highlight"><td>Comercio, Transporte y Alojamiento (G+H+I)</td><td>130.235</td><td>156.815</td><td>175.451</td><td>169.067</td><td>171.151</td><td>179.022</td></tr>
+        <tr class="highlight"><td>Información y comunicaciones</td><td>24.133</td><td>27.210</td><td>30.564</td><td>31.034</td><td>30.969</td><td>31.269</td></tr>
+        <tr class="highlight"><td>Actividades financieras y de seguros</td><td>42.433</td><td>44.003</td><td>46.940</td><td>51.135</td><td>51.684</td><td>53.112</td></tr>
+        <tr class="highlight"><td>Actividades inmobiliarias</td><td>81.118</td><td>83.143</td><td>84.843</td><td>86.413</td><td>88.322</td><td>90.074</td></tr>
+        <tr class="highlight"><td>Act. profesionales y serv. administrativos</td><td>57.564</td><td>63.167</td><td>68.132</td><td>69.437</td><td>69.146</td><td>70.074</td></tr>
+        <tr class="highlight"><td>Adm. pública, defensa, educación y salud</td><td>132.742</td><td>143.974</td><td>145.589</td><td>152.772</td><td>158.980</td><td>166.116</td></tr>
+        <tr class="highlight"><td>Act. artísticas, entretenimiento y otros</td><td>20.865</td><td>28.048</td><td>35.932</td><td>39.661</td><td>42.910</td><td>47.155</td></tr>
+        <tr style="font-weight:700; background:rgba(27,42,74,.06)"><td>Producto Interno Bruto</td><td>817.900</td><td>906.243</td><td>972.655</td><td>980.843</td><td>995.490</td><td>1.021.791</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:.78rem;color:var(--gray-400)">Las filas resaltadas corresponden al sector servicios. Fuente: DANE, PIB_T. <sup>pr</sup>preliminar.</p>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4>Participación del sector servicios en el PIB (%)</h4>
+      <canvas id="c1a"></canvas>
+      <div class="chart-source">Cálculos propios con datos DANE</div>
+    </div>
+    <div class="chart-card">
+      <h4>Crecimiento anual: PIB total vs Comercio/Transporte/Alojamiento</h4>
+      <canvas id="c1b"></canvas>
+      <div class="chart-source">Cálculos propios con datos DANE</div>
+    </div>
+    <div class="chart-card full">
+      <h4>Composición del sector servicios por subsector (% del PIB)</h4>
+      <canvas id="c1c"></canvas>
+      <div class="chart-source">Cálculos propios con datos DANE, Cuentas Nacionales Trimestrales</div>
+    </div>
+  </div>
+
+  <div class="analysis-box">
+    <h4>Interpretación</h4>
+    <p>El sector servicios ha consolidado su posición como motor principal de la economía colombiana, pasando de representar el 59,8% del PIB en 2020 al 62,3% en 2025. Dentro del sector, la rama de Comercio, Transporte y Alojamiento (G+H+I) es la de mayor peso individual (17,5% del PIB) y en 2025 creció un 4,6%, casi el doble del PIB total (+2,6%). Las actividades artísticas, de entretenimiento y recreación fueron las más dinámicas con un crecimiento del 9,9%, reflejando la recuperación completa de la demanda por servicios culturales y de ocio tras la pandemia. En contraste, sectores como minería (-6,2%) y construcción (-2,8%) registraron caídas, lo que subraya la creciente terciarización de la economía.</p>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════ SECCIÓN 2 ════════════════════════════════════════════ -->
+<section id="s2">
+<div class="container">
+  <div class="section-number">02</div>
+  <h2 class="section-title">Desempleo nacional y empleo en el sector servicios</h2>
+  <p class="section-source">Fuente: DANE, Gran Encuesta Integrada de Hogares (GEIH). Anexos mensuales de diciembre 2020–2024. Ocupados por rama de actividad CIIU 4 A.C., Total Nacional.</p>
+
+  <div class="kpi-row">
+    <div class="kpi green"><div class="value">10,2%</div><div class="label">Tasa de desempleo promedio 2024</div></div>
+    <div class="kpi"><div class="value">23.036</div><div class="label">Miles de ocupados totales (promedio 2024)</div></div>
+    <div class="kpi green"><div class="value">65,7%</div><div class="label">Empleo en servicios / empleo total (2024)</div></div>
+    <div class="kpi"><div class="value">7.455</div><div class="label">Miles de ocupados en Comercio+Transp.+Alojam. (2024)</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Indicadores del mercado laboral — Total Nacional (promedios anuales)</h3>
+    <table class="data-table">
+      <thead><tr><th>Indicador</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th></tr></thead>
+      <tbody>
+        <tr><td>Tasa de desempleo (%)</td><td class="neg">16,7</td><td>13,8</td><td>11,2</td><td>10,2</td><td class="green">10,2</td></tr>
+        <tr><td>Tasa de ocupación (%)</td><td class="neg">50,4</td><td>53,1</td><td>56,5</td><td>57,6</td><td>57,4</td></tr>
+        <tr><td>Población ocupada (miles)</td><td>19.049</td><td>20.392</td><td>22.032</td><td>22.788</td><td>23.036</td></tr>
+        <tr class="highlight"><td>Ocupados sector servicios (miles)</td><td>12.077</td><td>13.152</td><td>14.322</td><td>14.950</td><td>15.140</td></tr>
+        <tr class="highlight"><td>Participación servicios en empleo (%)</td><td>63,4%</td><td>64,5%</td><td>65,0%</td><td>65,6%</td><td>65,7%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Ocupados por rama de actividad del sector servicios (miles de personas, promedio anual)</h3>
+    <table class="data-table">
+      <thead><tr><th>Rama de actividad</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th><th>Δ 24/20</th></tr></thead>
+      <tbody>
+        <tr><td>Comercio y reparación de vehículos</td><td>3.608</td><td>3.736</td><td>3.970</td><td>4.020</td><td>4.056</td><td class="pos">+12,4%</td></tr>
+        <tr><td>Alojamiento y servicios de comida</td><td>1.313</td><td>1.316</td><td>1.483</td><td>1.639</td><td>1.691</td><td class="pos">+28,8%</td></tr>
+        <tr><td>Transporte y almacenamiento</td><td>1.354</td><td>1.442</td><td>1.595</td><td>1.706</td><td>1.708</td><td class="pos">+26,1%</td></tr>
+        <tr><td>Información y comunicaciones</td><td>291</td><td>364</td><td>383</td><td>403</td><td>406</td><td class="pos">+39,5%</td></tr>
+        <tr><td>Actividades financieras y de seguros</td><td>273</td><td>366</td><td>419</td><td>422</td><td>422</td><td class="pos">+54,6%</td></tr>
+        <tr><td>Actividades inmobiliarias</td><td>227</td><td>172</td><td>221</td><td>275</td><td>305</td><td class="pos">+34,4%</td></tr>
+        <tr><td>Act. profesionales y serv. administrativos</td><td>1.216</td><td>1.669</td><td>1.734</td><td>1.822</td><td>1.797</td><td class="pos">+47,8%</td></tr>
+        <tr><td>Adm. pública, defensa, educación y salud</td><td>2.207</td><td>2.508</td><td>2.665</td><td>2.738</td><td>2.771</td><td class="pos">+25,6%</td></tr>
+        <tr><td>Act. artísticas, entretenimiento y otras</td><td>1.588</td><td>1.580</td><td>1.851</td><td>1.925</td><td>1.984</td><td class="pos">+24,9%</td></tr>
+        <tr style="font-weight:700;background:rgba(201,168,76,.1)"><td>Total sector servicios</td><td>12.077</td><td>13.152</td><td>14.322</td><td>14.950</td><td>15.140</td><td class="pos">+25,4%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4>Tasa de desempleo vs tasa de ocupación — Total Nacional</h4>
+      <canvas id="c2a"></canvas>
+      <div class="chart-source">DANE, GEIH</div>
+    </div>
+    <div class="chart-card">
+      <h4>Empleo en el sector servicios vs resto de la economía (miles)</h4>
+      <canvas id="c2b"></canvas>
+      <div class="chart-source">DANE, GEIH — Ocupados por rama CIIU 4</div>
+    </div>
+  </div>
+
+  <div class="analysis-box">
+    <h4>Interpretación</h4>
+    <p>El mercado laboral colombiano mostró una recuperación progresiva tras el shock de 2020, cuando el desempleo alcanzó el 16,7%. Para 2024, la tasa se estabilizó en 10,2% y la ocupación se situó en 23 millones de personas. El sector servicios ha sido el principal generador de empleo, absorbiendo el 65,7% de los ocupados en 2024 (15,1 millones de personas), frente al 63,4% de 2020. Las ramas que más empleo generaron fueron Comercio (4,1 millones), Administración pública, educación y salud (2,8 millones), y Actividades artísticas y entretenimiento (2,0 millones). Las mayores tasas de crecimiento en empleo entre 2020 y 2024 se dieron en Actividades financieras (+54,6%), Actividades profesionales (+47,8%) e Información y comunicaciones (+39,5%), reflejando la digitalización y formalización de la economía.</p>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════ SECCIÓN 3 ════════════════════════════════════════════ -->
+<section id="s3">
+<div class="container">
+  <div class="section-number">03</div>
+  <h2 class="section-title">Índice de Precios al Consumidor (IPC) por divisiones de gasto</h2>
+  <p class="section-source">Fuente: DANE, Índice de Precios al Consumidor (IPC). Anexos IPC diciembre 2022 y diciembre 2024. Series históricas de IPC de servicios, base diciembre 2018 = 100.</p>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="value">5,20%</div><div class="label">Inflación total (IPC) a diciembre 2024</div></div>
+    <div class="kpi red"><div class="value">7,38%</div><div class="label">Inflación de Servicios a diciembre 2024</div></div>
+    <div class="kpi green"><div class="value">-0,93%</div><div class="label">Variación Información y Comunicación (dic. 2024)</div></div>
+    <div class="kpi red"><div class="value">7,87%</div><div class="label">Variación Restaurantes y Hoteles (dic. 2024)</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Inflación total (IPC) vs inflación de servicios — Variación anual a diciembre (%)</h3>
+    <table class="data-table">
+      <thead><tr><th>Indicador</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th></tr></thead>
+      <tbody>
+        <tr><td>IPC Total</td><td>1,61</td><td>5,62</td><td class="neg">13,12</td><td>9,28</td><td>5,20</td></tr>
+        <tr class="highlight"><td>IPC de Servicios</td><td>1,60</td><td>2,48</td><td>7,35</td><td class="neg">9,33</td><td class="neg">7,38</td></tr>
+        <tr><td>Diferencia (Servicios − Total)</td><td>−0,01</td><td>−3,14</td><td>−5,77</td><td class="neg">+0,05</td><td class="neg">+2,18</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Variación anual del IPC por divisiones de gasto — Comparativo diciembre 2022 vs 2024</h3>
+    <div style="overflow-x:auto">
+    <table class="data-table">
+      <thead><tr><th>División de gasto</th><th>Ponderación</th><th>Dic. 2022</th><th>Dic. 2024</th><th>Δ (pp)</th></tr></thead>
+      <tbody>
+        <tr><td>Alimentos y Bebidas No Alcohólicas</td><td>15,1%</td><td class="neg">27,81%</td><td>3,31%</td><td class="pos">−24,50</td></tr>
+        <tr><td>Bebidas Alcohólicas y Tabaco</td><td>1,7%</td><td>8,37%</td><td>5,57%</td><td class="pos">−2,80</td></tr>
+        <tr><td>Prendas de Vestir y Calzado</td><td>4,0%</td><td>11,22%</td><td>2,06%</td><td class="pos">−9,16</td></tr>
+        <tr><td>Alojamiento, Agua, Electricidad, Gas</td><td>33,1%</td><td>6,94%</td><td>6,96%</td><td>+0,02</td></tr>
+        <tr><td>Muebles y Artículos para el Hogar</td><td>4,4%</td><td>18,25%</td><td>2,18%</td><td class="pos">−16,07</td></tr>
+        <tr><td>Salud</td><td>1,7%</td><td>9,53%</td><td>5,54%</td><td class="pos">−3,99</td></tr>
+        <tr class="highlight"><td>Transporte ◄</td><td>12,9%</td><td>11,59%</td><td>5,19%</td><td class="pos">−6,40</td></tr>
+        <tr class="highlight"><td>Información y Comunicación ◄</td><td>4,3%</td><td>0,25%</td><td class="pos">−0,93%</td><td class="pos">−1,18</td></tr>
+        <tr class="highlight"><td>Recreación y Cultura ◄</td><td>3,8%</td><td>8,36%</td><td class="pos">−0,21%</td><td class="pos">−8,57</td></tr>
+        <tr><td>Educación</td><td>3,4%</td><td>5,98%</td><td class="neg">10,62%</td><td class="neg">+4,64</td></tr>
+        <tr class="highlight"><td>Restaurantes y Hoteles ◄</td><td>9,4%</td><td class="neg">18,54%</td><td class="neg">7,87%</td><td class="pos">−10,67</td></tr>
+        <tr class="highlight"><td>Bienes y Servicios Diversos ◄</td><td>5,4%</td><td>13,09%</td><td>3,33%</td><td class="pos">−9,76</td></tr>
+        <tr style="font-weight:700;background:rgba(27,42,74,.06)"><td>Total IPC</td><td>100%</td><td class="neg">13,12%</td><td>5,20%</td><td class="pos">−7,92</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:.78rem;color:var(--gray-400)">◄ Divisiones directamente relacionadas con el sector servicios. Ponderaciones correspondientes a la canasta vigente.</p>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4>Inflación total vs inflación de servicios (var. anual, dic.)</h4>
+      <canvas id="c3a"></canvas>
+      <div class="chart-source">DANE, IPC</div>
+    </div>
+    <div class="chart-card">
+      <h4>Divisiones de servicios: 2022 vs 2024 (var. anual %)</h4>
+      <canvas id="c3b"></canvas>
+      <div class="chart-source">DANE, IPC — Divisiones de bienes y servicios</div>
+    </div>
+  </div>
+
+  <div class="analysis-box">
+    <h4>Interpretación</h4>
+    <p>El análisis del IPC revela una dinámica de precios particularmente relevante para el sector servicios. Mientras que la inflación total se desaceleró marcadamente desde el pico de 13,12% en 2022 hasta 5,20% en 2024, la inflación de servicios mostró una persistencia mayor: subió a 9,33% en 2023 y apenas bajó a 7,38% en 2024, superando al IPC total por más de 2 puntos porcentuales. Esto se explica porque los servicios dependen fuertemente de costos laborales (salarios), que se ajustan con rezago frente al ciclo inflacionario. Las divisiones de Restaurantes y Hoteles (7,87%) y Transporte (5,19%) siguen presionadas, mientras que Información y Comunicación (-0,93%) y Recreación y Cultura (-0,21%) ya muestran deflación, beneficiadas por la competencia tecnológica. Las cinco divisiones de servicios analizadas representan en conjunto un 35,8% de la canasta del IPC, lo que las convierte en un determinante fundamental del comportamiento de la inflación agregada.</p>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════ SECCIÓN 4 ════════════════════════════════════════════ -->
+<section id="s4">
+<div class="container">
+  <div class="section-number">04</div>
+  <h2 class="section-title">Ventas minoristas, empleo y salarios del sector comercio</h2>
+  <p class="section-source">Fuente: DANE, Encuesta Mensual de Comercio (EMC). Índices empalmados, base 2019 = 100. Series mensuales enero 2013 – diciembre 2025.</p>
+
+  <div class="kpi-row">
+    <div class="kpi green"><div class="value">128,1</div><div class="label">Índice de ventas reales 2025 (base 2019=100)</div></div>
+    <div class="kpi"><div class="value">101,7</div><div class="label">Índice de personal ocupado 2025</div></div>
+    <div class="kpi green"><div class="value">114,2</div><div class="label">Índice de salario real per cápita 2025</div></div>
+    <div class="kpi green"><div class="value">+10,6%</div><div class="label">Crecimiento ventas reales 2025/2024</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Índices del comercio minorista — Promedios anuales (Base 2019 = 100)</h3>
+    <table class="data-table">
+      <thead><tr><th>Variable</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th><th>2025</th></tr></thead>
+      <tbody>
+        <tr><td>Ventas nominales</td><td>94,6</td><td>115,2</td><td>141,8</td><td>152,5</td><td>160,1</td><td>178,5</td></tr>
+        <tr class="highlight"><td>Ventas reales</td><td>93,8</td><td>109,0</td><td>119,8</td><td>113,8</td><td>115,8</td><td>128,1</td></tr>
+        <tr><td>Personal ocupado total</td><td>96,4</td><td>95,4</td><td>99,1</td><td>102,1</td><td>101,1</td><td>101,7</td></tr>
+        <tr><td>   Personal permanente</td><td>98,9</td><td>97,5</td><td>100,9</td><td>108,2</td><td>110,0</td><td>112,3</td></tr>
+        <tr><td>   Personal temporal directo</td><td>92,9</td><td>94,0</td><td>96,2</td><td>90,6</td><td>82,5</td><td>81,0</td></tr>
+        <tr><td>   Personal temporal (empresas)</td><td>89,5</td><td>88,8</td><td>98,3</td><td>94,7</td><td>90,0</td><td>86,5</td></tr>
+        <tr><td>Salario nominal per cápita</td><td>100,9</td><td>110,2</td><td>122,9</td><td>138,7</td><td>154,0</td><td>167,2</td></tr>
+        <tr class="highlight"><td>Salario real per cápita</td><td>98,4</td><td>103,9</td><td>105,1</td><td>106,2</td><td>110,6</td><td>114,2</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Ventas reales por línea de mercancía — Variación acumulada enero–diciembre 2025 vs 2024</h3>
+    <div style="overflow-x:auto">
+    <table class="data-table">
+      <thead><tr><th>Línea de mercancía</th><th>Var. nominal</th><th>Var. real</th></tr></thead>
+      <tbody>
+        <tr style="font-weight:700;background:rgba(27,42,74,.06)"><td>Total comercio minorista y vehículos</td><td>+12,5%</td><td class="pos">+11,7%</td></tr>
+        <tr><td>Alimentos y bebidas no alcohólicas</td><td>+8,7%</td><td>+3,6%</td></tr>
+        <tr><td>Prendas de vestir y textiles</td><td>+7,0%</td><td>+4,8%</td></tr>
+        <tr><td>Productos farmacéuticos y medicinales</td><td>+14,1%</td><td>+8,4%</td></tr>
+        <tr><td>Electrodomésticos y muebles para el hogar</td><td>+20,3%</td><td class="pos">+20,9%</td></tr>
+        <tr><td>Equipo de informática y telecomunicaciones</td><td>+13,8%</td><td class="pos">+49,3%</td></tr>
+        <tr><td>Artículos de ferretería, vidrios y pinturas</td><td>+11,3%</td><td>+10,0%</td></tr>
+        <tr><td>Vehículos automotores y motocicletas</td><td>+25,6%</td><td class="pos">+24,9%</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4>Ventas reales del comercio minorista (índice, base 2019=100)</h4>
+      <canvas id="c4a"></canvas>
+      <div class="chart-source">DANE, EMC — Índices empalmados</div>
+    </div>
+    <div class="chart-card">
+      <h4>Personal ocupado: permanente vs temporal</h4>
+      <canvas id="c4b"></canvas>
+      <div class="chart-source">DANE, EMC — Índices empalmados</div>
+    </div>
+    <div class="chart-card full">
+      <h4>Salario real per cápita vs ventas reales (índice, base 2019=100)</h4>
+      <canvas id="c4c"></canvas>
+      <div class="chart-source">DANE, EMC</div>
+    </div>
+  </div>
+
+  <div class="analysis-box">
+    <h4>Interpretación</h4>
+    <p>La Encuesta Mensual de Comercio revela una paradoja interesante en el sector: las ventas reales se recuperaron con fuerza en 2025 (índice de 128,1, un +10,6% frente a 2024), pero el empleo en el comercio formal apenas está en 101,7, es decir, prácticamente al mismo nivel de 2019. Esto sugiere una ganancia de productividad significativa: el comercio está vendiendo un 28% más en términos reales con apenas un 1,7% más de personal. La composición del empleo también cambió estructuralmente: el personal permanente subió a 112,3, mientras que el temporal directo cayó a 81,0 y el temporal por empresas a 86,5. Este fenómeno indica una tendencia a la formalización y estabilización laboral, pero con menos contrataciones flexibles. El salario real per cápita creció un 16,1% acumulado entre 2020 y 2025, impulsado en parte por la reducción de empleados temporales de menor remuneración y por los ajustes reales del salario mínimo. Las líneas con mayor dinamismo en 2025 fueron equipos de informática y telecomunicaciones (+49,3% real), vehículos (+24,9%) y electrodomésticos (+20,9%), reflejando el auge del consumo de bienes durables y tecnología.</p>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════ BIBLIOGRAFÍA ════════════════════════════════════════════ -->
+<section id="bib" class="bib-section">
+<div class="container">
+  <h2>Referencias bibliográficas (APA 7.ª edición)</h2>
+  <div class="gold-line" style="margin:12px 0 24px"></div>
+  <p class="bib-entry">Departamento Administrativo Nacional de Estadística [DANE]. (2026). <em>Producto Interno Bruto (PIB) — IV trimestre 2025 preliminar</em> [Boletín técnico]. https://www.dane.gov.co/index.php/estadisticas-por-tema/cuentas-nacionales/cuentas-nacionales-trimestrales</p>
+  <p class="bib-entry">Departamento Administrativo Nacional de Estadística [DANE]. (2026). <em>Anexo estadístico PIB por producción, series encadenadas de volumen con año de referencia 2015 — IV trimestre 2025</em> [Archivo de datos]. https://www.dane.gov.co/index.php/estadisticas-por-tema/cuentas-nacionales/cuentas-nacionales-trimestrales</p>
+  <p class="bib-entry">Departamento Administrativo Nacional de Estadística [DANE]. (2025). <em>Gran Encuesta Integrada de Hogares (GEIH) — Anexos mensuales, diciembre 2024</em> [Archivo de datos]. https://www.dane.gov.co/index.php/estadisticas-por-tema/mercado-laboral/empleo-y-desempleo</p>
+  <p class="bib-entry">Departamento Administrativo Nacional de Estadística [DANE]. (2025). <em>Índice de Precios al Consumidor (IPC) — Anexos diciembre 2024</em> [Archivo de datos]. https://www.dane.gov.co/index.php/estadisticas-por-tema/precios-y-costos/indice-de-precios-al-consumidor-ipc</p>
+  <p class="bib-entry">Departamento Administrativo Nacional de Estadística [DANE]. (2026). <em>Índice de Precios al Consumidor (IPC) por divisiones de bienes y servicios — Variaciones anuales, febrero 2026</em> [Archivo de datos]. https://www.dane.gov.co/index.php/estadisticas-por-tema/precios-y-costos/indice-de-precios-al-consumidor-ipc</p>
+  <p class="bib-entry">Departamento Administrativo Nacional de Estadística [DANE]. (2026). <em>Encuesta Mensual de Comercio (EMC) — Índices empalmados, diciembre 2025</em> [Archivo de datos]. https://www.dane.gov.co/index.php/estadisticas-por-tema/comercio-interno/encuesta-mensual-de-comercio-emc</p>
+</div>
+</section>
+
+<footer>
+  <div class="container">
+    Análisis Sectorial — Sector Servicios y Comercio en Colombia · Microeconomía · UNAB 2026<br>
+    Datos: DANE (Cuentas Nacionales, GEIH, IPC, EMC) · Cálculos y gráficas propios
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════════ SCRIPTS ════════════════════════════════════════════ -->
+<script>
+const cFont = {family:"'Source Sans 3', sans-serif"};
+Chart.defaults.font.family = "'Source Sans 3', sans-serif";
+Chart.defaults.font.size = 12;
+const navy='#1B2A4A', gold='#C9A84C', green='#27864A', red='#C0392B', blue='#2D4373', teal='#148F77', orange='#D4780A', purple='#6C3483';
+const yrs6 = ['2020','2021','2022','2023','2024','2025'];
+const yrs5 = ['2020','2021','2022','2023','2024'];
+function gr(arr){return arr.slice(1).map((v,i)=>+((v/arr[i]-1)*100).toFixed(1));}
+
+// ── SECTION 1 CHARTS ──
+const pib=[817900,906243,972655,980843,995490,1021791];
+const svc=[489090,546360,587451,599519,613162,636822];
+const com=[130235,156815,175451,169067,171151,179022];
+const partSvc=svc.map((v,i)=>+(v/pib[i]*100).toFixed(1));
+
+new Chart(document.getElementById('c1a'),{type:'bar',data:{labels:yrs6,datasets:[{label:'% del PIB',data:partSvc,backgroundColor:gold,borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{y:{min:55,max:65,ticks:{callback:v=>v+'%'},title:{display:true,text:'Participación (%)'}}}}});
+
+new Chart(document.getElementById('c1b'),{type:'line',data:{labels:['21/20','22/21','23/22','24/23','25/24'],datasets:[{label:'PIB Total',data:gr(pib),borderColor:navy,borderWidth:3,tension:.3,pointRadius:5,backgroundColor:navy+'22'},{label:'Comercio/Transp/Alojam.',data:gr(com),borderColor:green,borderWidth:3,tension:.3,pointRadius:5,backgroundColor:green+'22'},{label:'Sector Servicios Total',data:gr(svc),borderColor:gold,borderWidth:2,borderDash:[5,5],tension:.3,pointRadius:4}]},options:{plugins:{legend:{position:'bottom',labels:{usePointStyle:true}}},scales:{y:{ticks:{callback:v=>v+'%'},title:{display:true,text:'Crecimiento (%)'}}}}});
+
+const info=[24133,27210,30564,31034,30969,31269],fin=[42433,44003,46940,51135,51684,53112],inm=[81118,83143,84843,86413,88322,90074],prof=[57564,63167,68132,69437,69146,70074],adm=[132742,143974,145589,152772,158980,166116],art=[20865,28048,35932,39661,42910,47155];
+const mkP=(a)=>a.map((v,i)=>+(v/pib[i]*100).toFixed(1));
+new Chart(document.getElementById('c1c'),{type:'bar',data:{labels:yrs6,datasets:[{label:'Comercio/Transp/Alojam.',data:mkP(com),backgroundColor:green},{label:'Adm. pública/Educ/Salud',data:mkP(adm),backgroundColor:blue},{label:'Inmobiliarias',data:mkP(inm),backgroundColor:gold},{label:'Profesionales/Admin.',data:mkP(prof),backgroundColor:orange},{label:'Financieras/Seguros',data:mkP(fin),backgroundColor:purple},{label:'Info. y comunicaciones',data:mkP(info),backgroundColor:teal},{label:'Artísticas/Entretenim.',data:mkP(art),backgroundColor:'#E74C3C'}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:10},usePointStyle:true}}},scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:v=>v+'%'},title:{display:true,text:'% del PIB'}}}}});
+
+// ── SECTION 2 CHARTS ──
+const td=[16.7,13.8,11.2,10.2,10.2], to=[50.4,53.1,56.5,57.6,57.4];
+const ocuSvc=[12077,13152,14322,14950,15140], ocuTot=[19049,20392,22032,22788,23036];
+const ocuResto=ocuTot.map((v,i)=>v-ocuSvc[i]);
+
+new Chart(document.getElementById('c2a'),{type:'bar',data:{labels:yrs5,datasets:[{label:'Tasa de desempleo (%)',data:td,backgroundColor:red+'CC',borderRadius:5,yAxisID:'y'},{label:'Tasa de ocupación (%)',data:to,type:'line',borderColor:green,borderWidth:3,pointRadius:5,tension:.3,yAxisID:'y1'}]},options:{plugins:{legend:{position:'bottom',labels:{usePointStyle:true}}},scales:{y:{position:'left',title:{display:true,text:'TD (%)'},ticks:{callback:v=>v+'%'}},y1:{position:'right',title:{display:true,text:'TO (%)'},ticks:{callback:v=>v+'%'},grid:{drawOnChartArea:false}}}}});
+
+new Chart(document.getElementById('c2b'),{type:'bar',data:{labels:yrs5,datasets:[{label:'Sector Servicios',data:ocuSvc,backgroundColor:blue,borderRadius:4},{label:'Resto de la economía',data:ocuResto,backgroundColor:'#CCC',borderRadius:4}]},options:{plugins:{legend:{position:'bottom',labels:{usePointStyle:true}}},scales:{x:{stacked:true},y:{stacked:true,title:{display:true,text:'Miles de personas'}}}}});
+
+// ── SECTION 3 CHARTS ──
+const ipcTot=[1.61,5.62,13.12,9.28,5.20], ipcSvc=[1.60,2.48,7.35,9.33,7.38];
+new Chart(document.getElementById('c3a'),{type:'line',data:{labels:yrs5,datasets:[{label:'IPC Total',data:ipcTot,borderColor:navy,borderWidth:3,tension:.3,pointRadius:6,fill:true,backgroundColor:navy+'15'},{label:'IPC Servicios',data:ipcSvc,borderColor:red,borderWidth:3,tension:.3,pointRadius:6,fill:true,backgroundColor:red+'15'}]},options:{plugins:{legend:{position:'bottom',labels:{usePointStyle:true}}},scales:{y:{ticks:{callback:v=>v+'%'},title:{display:true,text:'Variación anual (%)'}}}}});
+
+const divNames=['Transporte','Info. y\nComunic.','Recreación\ny Cultura','Restaurantes\ny Hoteles','Bienes y\nServ. Diversos'];
+const div22=[11.59,0.25,8.36,18.54,13.09], div24=[5.19,-0.93,-0.21,7.87,3.33];
+new Chart(document.getElementById('c3b'),{type:'bar',data:{labels:divNames,datasets:[{label:'Dic. 2022',data:div22,backgroundColor:navy+'BB',borderRadius:4},{label:'Dic. 2024',data:div24,backgroundColor:gold,borderRadius:4}]},options:{plugins:{legend:{position:'bottom',labels:{usePointStyle:true}}},scales:{y:{ticks:{callback:v=>v+'%'},title:{display:true,text:'Variación anual (%)'}}}}});
+
+// ── SECTION 4 CHARTS ──
+const ventasR=[93.8,109.0,119.8,113.8,115.8,128.1];
+new Chart(document.getElementById('c4a'),{type:'line',data:{labels:yrs6,datasets:[{label:'Ventas reales',data:ventasR,borderColor:green,borderWidth:3,tension:.3,pointRadius:6,fill:true,backgroundColor:green+'18'}]},options:{plugins:{legend:{display:false},annotation:{}},scales:{y:{title:{display:true,text:'Índice (2019=100)'}}}}});
+
+const perPerm=[98.9,97.5,100.9,108.2,110.0,112.3],perTempD=[92.9,94.0,96.2,90.6,82.5,81.0],perTempE=[89.5,88.8,98.3,94.7,90.0,86.5];
+new Chart(document.getElementById('c4b'),{type:'line',data:{labels:yrs6,datasets:[{label:'Permanente',data:perPerm,borderColor:green,borderWidth:3,tension:.3,pointRadius:5},{label:'Temporal directo',data:perTempD,borderColor:red,borderWidth:2,borderDash:[5,5],tension:.3,pointRadius:4},{label:'Temporal (empresas)',data:perTempE,borderColor:orange,borderWidth:2,borderDash:[3,3],tension:.3,pointRadius:4}]},options:{plugins:{legend:{position:'bottom',labels:{usePointStyle:true}}},scales:{y:{title:{display:true,text:'Índice (2019=100)'}}}}});
+
+const salR=[98.4,103.9,105.1,106.2,110.6,114.2];
+new Chart(document.getElementById('c4c'),{type:'line',data:{labels:yrs6,datasets:[{label:'Ventas reales',data:ventasR,borderColor:green,borderWidth:3,tension:.3,pointRadius:6},{label:'Salario real per cápita',data:salR,borderColor:blue,borderWidth:3,tension:.3,pointRadius:6},{label:'Personal total',data:[96.4,95.4,99.1,102.1,101.1,101.7],borderColor:gold,borderWidth:2,borderDash:[5,5],tension:.3,pointRadius:4}]},options:{plugins:{legend:{position:'bottom',labels:{usePointStyle:true}}},scales:{y:{title:{display:true,text:'Índice (2019=100)'}}}}});
+</script>
+</body>
+</html>
